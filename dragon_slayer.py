@@ -1,22 +1,16 @@
+# be able to restart the game if won or lost
+# make the
+
+
 import pygame
-import Weapon
-import Player
-import Dragon
-import sys
+from Weapon import Weapon
+from Player import Player
+from Dragon import Dragon
 
 # parameter which can be set
 screen_width = 1000
 screen_height = 500
 framerate = 60
-fireball_velocity = -3  # in pixels
-fireball_delay = 120  # in frames
-attack_offset = 15  # in pixels
-
-# The definition of the directions
-up = (0, -10)
-down = (0, 10)
-left = (-10, 0)
-right = (10, 0)
 
 # initializing stuff, ignore it
 pygame.init()
@@ -25,30 +19,14 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 background = pygame.image.load("background.png")
 
-
-
-
-
-
-
-
 # initializes the player
 gio = Player(50, 50, 100, 100)
-gio.setImage("player.png")
-player_group = pygame.sprite.Group()
-player_group.add(gio)
 
 # initializes the sword
-sword = Weapon.Weapon.makeWeapon("sword.png")
-sword.setImage("sword.png")
-weapon_group = pygame.sprite.Group()
-weapon_group.add(sword)
+sword = Weapon()
 
 # initializes the dragon
 dragon = Dragon(10, 10, 900, 300)
-dragon.setImage("dragon.png")
-boss_group = pygame.sprite.Group()
-boss_group.add(dragon)
 
 # boolean which are kept track of
 swordPickedUp = False
@@ -62,10 +40,10 @@ def paintScreen():
     global swordPickedUp
     screen.fill((0, 0, 0))
     screen.blit(background, (0, 0))
-    player_group.draw(screen)
+    Player.player_group.draw(screen)
     if not swordPickedUp:
-        weapon_group.draw(screen)
-    boss_group.draw(screen)
+        Weapon.weapon_group.draw(screen)
+    Dragon.boss_group.draw(screen)
     dragon.fireball_group.draw(screen)
 
 

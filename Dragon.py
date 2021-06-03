@@ -1,9 +1,19 @@
+from MySprite import MySprite
 import pygame
-from dragon_slayer import *
-import MySprite
+
+screen_height = 500
+fireball_velocity = -3  # in pixels
+fireball_delay = 120  # in frames
 
 
 class Dragon(MySprite):
+    boss_group = pygame.sprite.Group()
+
+    def __init__(self, width, height, pos_x, pos_y, color=(255, 255, 255)):
+        super().__init__(width, height, pos_x, pos_y)
+        self.setImage("dragon.png")
+        Dragon.boss_group.add(self)
+
     yVelocity = 1
     timer = 0
     fireball_group = pygame.sprite.Group()
@@ -36,6 +46,7 @@ class Dragon(MySprite):
 
 
 class FireBall(MySprite):
+    # TODO what the heck is going on here? why is fireball_velocity not working?
     x_velocity = fireball_velocity
 
     def update(self):
