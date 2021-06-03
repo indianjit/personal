@@ -24,6 +24,9 @@ import time
 screen_width = 1000
 screen_height = 500
 framerate = 60
+fireball_velocity = -3  # in pixels
+fireball_delay = 120  # in frames
+attack_offset = 15  # in pixels
 
 # The definition of the directions
 up = (0, -10)
@@ -56,8 +59,30 @@ class mySprite(pygame.sprite.Sprite):
         self.rect.center = (self.xPosition, self.yPosition)
 
 
+# class attack:
+#   timer = 0
+#   def __init__(self, x_pos, y_pos):
+
+
+class Weapon:
+    def attack(self, x_pos, y_pos):
+        attacks = pygame.sprite.Group()
+        attack = mySprite(10, 50, x_pos + attack_offset, y_pos)
+
+
 # The player class
 class Player(mySprite):
+    weapon = None
+
+    def setWeapon(self, weaponIn):
+        self.weapon = weaponIn
+
+    def attack(self):
+        if self.weapon is None:
+            print("Player has no weapon")
+        else:
+            self.weapon.attack(self.xPosition, self.yPosition)
+
     def move(self, direction):
         self.xPosition += direction[0]
         self.yPosition += direction[1]
@@ -77,10 +102,12 @@ class Player(mySprite):
                     self.move(left)
                 elif event.key == pygame.K_RIGHT:
                     self.move(right)
+                elif event.key == pygame.K_SPACE:
+                    self.attack()
 
 
 class FireBall(mySprite):
-    x_velocity = -1
+    x_velocity = fireball_velocity
 
     def update(self):
         self.xPosition += self.x_velocity
@@ -89,20 +116,24 @@ class FireBall(mySprite):
 
 class Dragon(mySprite):
     yVelocity = 1
-    activeFireBalls = []
+    timer = 0
+    fireball_group = pygame.sprite.Group()
 
     def shootFireBall(self):
         fb = FireBall(10, 10, self.xPosition - 40, self.yPosition)
         fb.setImage("fireball.png")
-        self.activeFireBalls.add(fb)
+        self.fireball_group.add(fb)
 
     def updateFireBalls(self):
-        active_fire_balls_copy = self.activeFireBalls.copy();
-        for fireBall in active_fire_balls_copy:
+        fire_balls_group_copy = self.fireball_group.copy()
+        for fireBall in fire_balls_group_copy:
             if fireBall.xPosition < 0:
-                self.activeFireBalls.remove(fireBall)
+                self.fireball_group.remove(fireBall)
+            else:
+                fireBall.update()
 
     def update(self):
+        self.timer += 1
         self.yPosition += self.yVelocity
 
         if self.yPosition > screen_height and self.yVelocity > 0:
@@ -110,7 +141,8 @@ class Dragon(mySprite):
         elif self.yPosition < 0 and self.yVelocity < 0:
             self.yVelocity *= -1
         self.rect.center = (self.xPosition, self.yPosition)
-
+        if self.timer % fireball_delay == 0:
+            self.shootFireBall()
         self.updateFireBalls()
 
 
@@ -148,6 +180,7 @@ def paintScreen():
     if not swordPickedUp:
         weapon_group.draw(screen)
     boss_group.draw(screen)
+    dragon.fireball_group.draw(screen)
 
 
 def write(message):
@@ -159,6 +192,11 @@ def write(message):
 
 def checkInteractions():
     global swordPickedUp, gameOver, gio
+
+    for fb in dragon.fireball_group:
+        if fb.rect.colliderect(gio.rect):
+            gameLost()
+
     if sword.rect.colliderect(gio.rect):
         swordPickedUp = True
         gio.setImage("playerWithSword.png")
@@ -172,7 +210,7 @@ def checkInteractions():
 
 def gameLost():
     global gameOver
-    write("You won the game!")
+    write("You lost the game!")
     gameOver = True
 
 
@@ -187,7 +225,7 @@ while True:
     if not gameOver:
         gio.handle_keys()
         dragon.update()
+        checkInteractions()
         paintScreen()
         pygame.display.flip()
         clock.tick(framerate)
-        checkInteractions()
