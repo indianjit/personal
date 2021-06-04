@@ -3,23 +3,29 @@ import pygame
 
 screen_height = 500
 fireball_velocity = -3  # in pixels
-fireball_delay = 120  # in frames
+fireball_delay = 30  # in frames
+fireball_offset = 100
 
 
 class Dragon(MySprite):
+    yVelocity = 1
+    timer = 0
+    initial_dragon_health = 100
+
+    fireball_group = pygame.sprite.Group()
     boss_group = pygame.sprite.Group()
 
     def __init__(self, width, height, pos_x, pos_y, color=(255, 255, 255)):
         super().__init__(width, height, pos_x, pos_y)
         self.setImage("dragon.png")
         Dragon.boss_group.add(self)
+        self.health = self.initial_dragon_health
 
-    yVelocity = 1
-    timer = 0
-    fireball_group = pygame.sprite.Group()
+    def decrease_health(self, amount):
+        self.health -= amount
 
     def shootFireBall(self):
-        fb = FireBall(10, 10, self.xPosition - 40, self.yPosition)
+        fb = FireBall(10, 10, self.xPosition - fireball_offset, self.yPosition)
         fb.setImage("fireball.png")
         self.fireball_group.add(fb)
 

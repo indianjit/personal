@@ -2,12 +2,13 @@ from MySprite import MySprite
 import pygame
 import sys
 
+step_size = 20
 
 # The definition of the directions
-up = (0, -10)
-down = (0, 10)
-left = (-10, 0)
-right = (10, 0)
+up = (0, -step_size)
+down = (0, step_size)
+left = (-step_size, 0)
+right = (step_size, 0)
 
 
 # The player class
@@ -31,29 +32,24 @@ class Player(MySprite):
         else:
             self.weapon.attack(self.xPosition, self.yPosition)
 
-    def move(self):
-        self.xPosition += self.x_vel
-        self.yPosition += self.y_vel
+    def move(self, direction):
+        self.xPosition += direction[0]
+        self.yPosition += direction[1]
         self.rect.center = [self.xPosition, self.yPosition]
 
     def handle_keys(self):
-        self.move()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.y_vel -= (1 + abs(self.x_vel))
-                    self.x_vel = 0
+                    self.move(up)
                 elif event.key == pygame.K_DOWN:
-                    self.y_vel += (1 + abs(self.x_vel))
-                    self.x_vel = 0
+                    self.move(down)
                 elif event.key == pygame.K_LEFT:
-                    self.x_vel -= (1 + abs(self.y_vel))
-                    self.y_vel = 0
+                    self.move(left)
                 elif event.key == pygame.K_RIGHT:
-                    self.x_vel += (1 + abs(self.y_vel))
-                    self.y_vel = 0
+                    self.move(right)
                 elif event.key == pygame.K_SPACE:
                     self.attack()
